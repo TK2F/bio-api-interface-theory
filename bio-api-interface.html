@@ -1,0 +1,2679 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生体APIと人間のインターフェース革命 - 境界線上の旅</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&family=Space+Mono:wght@400;700&family=Zen+Kaku+Gothic+New:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-cyan: #00ffff;
+            --primary-magenta: #ff00ff;
+            --primary-lime: #00ff88;
+            --dark-bg: #000814;
+            --text-light: rgba(255, 255, 255, 0.95);
+            --text-dim: rgba(255, 255, 255, 0.7);
+            --border-glow: rgba(0, 255, 255, 0.3);
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Zen Kaku Gothic New', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-light);
+            overflow-x: hidden;
+            line-height: 1.8;
+        }
+
+        /* スムーススクロール */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* カスタムスクロールバー */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary-cyan), var(--primary-magenta));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--primary-magenta), var(--primary-lime));
+        }
+
+        /* ナビゲーション */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(0, 8, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glow);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary-cyan), var(--primary-magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-cyan);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-cyan);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* プログレスインジケーター */
+        .progress-indicator {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(0, 255, 255, 0.1);
+            z-index: 999;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-cyan), var(--primary-magenta));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* ヒーローセクション */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at center, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        .neural-network {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            max-width: 1000px;
+            animation: fadeInUp 1.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(3rem, 12vw, 7rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary-cyan), var(--primary-magenta), var(--primary-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradient-shift 5s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .hero-quote {
+            font-family: 'Zen Kaku Gothic New', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 300;
+            line-height: 2;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            opacity: 0.9;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-20px); }
+        }
+
+        /* 目次セクション */
+        .toc-section {
+            padding: 6rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .toc-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+            color: var(--primary-cyan);
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+        }
+
+        .toc-part {
+            background: rgba(0, 255, 255, 0.02);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toc-part::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary-cyan), var(--primary-magenta));
+            border-radius: 20px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.4s ease;
+        }
+
+        .toc-part:hover::before {
+            opacity: 0.3;
+        }
+
+        .toc-part:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.2);
+        }
+
+        .toc-part-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            color: var(--primary-magenta);
+            margin-bottom: 0.5rem;
+        }
+
+        .toc-part-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-cyan);
+        }
+
+        .toc-chapters {
+            list-style: none;
+        }
+
+        .toc-chapter {
+            padding: 0.5rem 0;
+            font-size: 1rem;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .toc-chapter::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--primary-lime);
+            transition: transform 0.3s ease;
+        }
+
+        .toc-chapter:hover {
+            color: var(--text-light);
+            padding-left: 2rem;
+        }
+
+        .toc-chapter:hover::before {
+            transform: translateX(5px);
+        }
+
+        /* 部セクション共通スタイル */
+        .part-section {
+            padding: 8rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .part-header {
+            max-width: 1200px;
+            margin: 0 auto 6rem;
+            text-align: center;
+        }
+
+        .part-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            color: var(--primary-magenta);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .part-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(90deg, var(--primary-cyan), var(--primary-magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .part-description {
+            font-size: 1.3rem;
+            line-height: 2;
+            color: var(--text-dim);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* 章セクション共通スタイル */
+        .chapter-section {
+            padding: 4rem 2rem;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chapter-section:nth-child(even) {
+            background: rgba(0, 255, 255, 0.02);
+        }
+
+        .chapter-container {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .chapter-container.reverse {
+            direction: rtl;
+        }
+
+        .chapter-container.reverse > * {
+            direction: ltr;
+        }
+
+        .chapter-visual {
+            position: relative;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chapter-content {
+            padding: 2rem;
+        }
+
+        .chapter-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            color: var(--primary-cyan);
+            letter-spacing: 0.3em;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .chapter-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .chapter-excerpt {
+            font-size: 1.1rem;
+            line-height: 2;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+        }
+
+        .key-concepts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .concept-tag {
+            padding: 0.5rem 1.2rem;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 25px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .concept-tag:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: var(--primary-cyan);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+        }
+
+        /* 序章ビジュアル */
+        .intro-visual {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .translator-circle {
+            width: 200px;
+            height: 200px;
+            border: 3px solid var(--primary-cyan);
+            border-radius: 50%;
+            position: relative;
+            animation: rotate 20s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .translator-text {
+            font-family: 'Zen Kaku Gothic New', sans-serif;
+            font-size: 1.5rem;
+            animation: counter-rotate 20s linear infinite;
+        }
+
+        @keyframes counter-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        /* 第1章：知覚の差異ビジュアル */
+        .perception-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .human-sphere {
+            position: absolute;
+            top: 50%;
+            left: 25%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.3), transparent);
+            border: 2px solid var(--primary-cyan);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Zen Kaku Gothic New', sans-serif;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .ai-sphere {
+            position: absolute;
+            top: 50%;
+            right: 25%;
+            transform: translate(50%, -50%);
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(255, 0, 255, 0.3), transparent);
+            border: 2px solid var(--primary-magenta);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Zen Kaku Gothic New', sans-serif;
+            animation: pulse 3s ease-in-out infinite 1.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1); 
+                opacity: 1; 
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.1); 
+                opacity: 0.8; 
+            }
+        }
+
+        .perception-bridge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                var(--primary-cyan) 0%, 
+                transparent 40%, 
+                transparent 60%, 
+                var(--primary-magenta) 100%);
+            overflow: hidden;
+        }
+
+        .perception-flow {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, white, transparent);
+            animation: flow 3s linear infinite;
+        }
+
+        @keyframes flow {
+            to { left: 100%; }
+        }
+
+        /* 第2章：アフォーダンスビジュアル */
+        .affordance-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .environment-circle {
+            width: 350px;
+            height: 350px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            position: relative;
+            animation: environment-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes environment-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.6; }
+        }
+
+        .affordance-item {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid var(--primary-lime);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .affordance-item:hover {
+            transform: scale(1.2);
+            background: rgba(0, 255, 136, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+        }
+
+        .affordance-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, var(--primary-cyan), transparent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        /* 第3章：拡張された心ビジュアル */
+        .extended-mind-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mind-core {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, var(--primary-magenta), transparent);
+            border-radius: 50%;
+            position: relative;
+            animation: mind-pulse 3s ease-in-out infinite;
+        }
+
+        .extension {
+            position: absolute;
+            background: rgba(255, 0, 255, 0.1);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            border-radius: 50%;
+            animation: extend 5s ease-in-out infinite;
+        }
+
+        .extension:nth-child(2) {
+            width: 250px;
+            height: 250px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 0s;
+        }
+
+        .extension:nth-child(3) {
+            width: 350px;
+            height: 350px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 1s;
+        }
+
+        .extension:nth-child(4) {
+            width: 450px;
+            height: 450px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 2s;
+        }
+
+        @keyframes extend {
+            0%, 100% { opacity: 0.1; transform: translate(-50%, -50%) scale(0.9); }
+            50% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        /* 第4章：共生ビジュアル */
+        .symbiosis-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cell-container {
+            width: 350px;
+            height: 350px;
+            border: 3px solid rgba(0, 255, 255, 0.5);
+            border-radius: 50%;
+            position: relative;
+            animation: cell-rotate 30s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes cell-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .mitochondria {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, var(--primary-magenta), transparent);
+            border: 2px solid var(--primary-magenta);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: orbit 15s linear infinite;
+        }
+
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+        }
+
+        .nucleus {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, var(--primary-cyan), transparent);
+            border: 2px solid var(--primary-cyan);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.2rem;
+        }
+
+        /* 第5章：ガイアビジュアル */
+        .gaia-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gaia-sphere {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: gaia-rotate 20s linear infinite;
+        }
+
+        @keyframes gaia-rotate {
+            from { transform: rotateY(0deg) rotateX(10deg); }
+            to { transform: rotateY(360deg) rotateX(10deg); }
+        }
+
+        .gaia-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        .gaia-layer:nth-child(1) {
+            border: 2px solid var(--primary-cyan);
+            animation: gaia-pulse 4s ease-in-out infinite;
+        }
+
+        .gaia-layer:nth-child(2) {
+            border: 2px solid var(--primary-magenta);
+            transform: rotateY(60deg);
+            animation: gaia-pulse 4s ease-in-out infinite 1.3s;
+        }
+
+        .gaia-layer:nth-child(3) {
+            border: 2px solid var(--primary-lime);
+            transform: rotateY(120deg);
+            animation: gaia-pulse 4s ease-in-out infinite 2.6s;
+        }
+
+        @keyframes gaia-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .gaia-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.5), transparent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            z-index: 10;
+        }
+
+        /* 第6章：DNA意識ビジュアル */
+        .dna-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dna-helix {
+            width: 200px;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: dna-rotate 10s linear infinite;
+        }
+
+        @keyframes dna-rotate {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        .dna-strand {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--primary-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary-cyan);
+        }
+
+        .consciousness-field {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 0, 255, 0.1), transparent);
+            border-radius: 50%;
+            animation: consciousness-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes consciousness-pulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        /* 第7章：テクニカルイメージビジュアル */
+        .technical-image-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .image-layer {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .image-layer:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-magenta);
+            box-shadow: 0 10px 30px rgba(255, 0, 255, 0.3);
+        }
+
+        .image-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .image-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        /* 第8章：メディア拡張ビジュアル */
+        .media-extension-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .human-center {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, var(--primary-cyan), transparent);
+            border: 2px solid var(--primary-cyan);
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+
+        .media-extension {
+            position: absolute;
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: media-rotate 20s linear infinite;
+        }
+
+        @keyframes media-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .extension-item {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 0, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: counter-media-rotate 20s linear infinite;
+        }
+
+        @keyframes counter-media-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        /* 第9章：ホログラフィックビジュアル */
+        .holographic-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: hologram-rotate 15s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes hologram-rotate {
+            from { transform: rotateY(0deg) rotateX(5deg); }
+            to { transform: rotateY(360deg) rotateX(5deg); }
+        }
+
+        .holo-layer {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border: 2px solid;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.2rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .holo-layer:nth-child(1) {
+            border-color: rgba(0, 255, 255, 0.6);
+            transform: translateZ(80px);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .holo-layer:nth-child(2) {
+            border-color: rgba(255, 0, 255, 0.6);
+            transform: translateZ(0px);
+            background: rgba(255, 0, 255, 0.05);
+        }
+
+        .holo-layer:nth-child(3) {
+            border-color: rgba(0, 255, 136, 0.6);
+            transform: translateZ(-80px);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        /* 第10章：インターフェース専門職ビジュアル */
+        .professions-viz {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .profession-card {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profession-card::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(255, 0, 255, 0.2), transparent);
+            transition: all 0.6s ease;
+            transform: rotate(45deg);
+        }
+
+        .profession-card:hover::before {
+            top: -150%;
+            left: -150%;
+        }
+
+        .profession-card:hover {
+            transform: translateY(-15px);
+            border-color: var(--primary-magenta);
+            box-shadow: 0 15px 40px rgba(255, 0, 255, 0.3);
+        }
+
+        .profession-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: block;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .profession-name {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-cyan);
+            line-height: 1.4;
+        }
+
+        .profession-description {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            line-height: 1.6;
+        }
+
+        /* 第11章：存在論ビジュアル */
+        .ontology-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .being-transition {
+            width: 400px;
+            height: 200px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .being-state {
+            width: 150px;
+            height: 150px;
+            border: 2px solid var(--primary-cyan);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'Zen Kaku Gothic New', sans-serif;
+            font-size: 1rem;
+            padding: 1rem;
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        .transition-arrow {
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-cyan), var(--primary-magenta));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .transition-arrow::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, white, transparent);
+            animation: arrow-flow 2s linear infinite;
+        }
+
+        @keyframes arrow-flow {
+            to { left: 100%; }
+        }
+
+        /* 第12章：全体知ビジュアル */
+        .collective-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .knowledge-network {
+            width: 500px;
+            height: 500px;
+            position: relative;
+        }
+
+        .knowledge-node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.8), transparent);
+            border: 1px solid var(--primary-cyan);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            animation: float-node 6s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .knowledge-node:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        @keyframes float-node {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .knowledge-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, var(--primary-magenta), transparent);
+            border: 2px solid var(--primary-magenta);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            z-index: 10;
+            animation: core-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes core-pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .knowledge-connection {
+            position: absolute;
+            height: 1px;
+            background: rgba(0, 255, 255, 0.3);
+            transform-origin: left center;
+        }
+
+        /* 第13章：新ヒューマニズムビジュアル */
+        .humanism-viz {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .evolution-spiral {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            animation: spiral-rotate 30s linear infinite;
+        }
+
+        @keyframes spiral-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .evolution-point {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, var(--primary-lime), transparent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .evolution-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(255, 0, 255, 0.3), transparent);
+            border: 2px solid var(--primary-magenta);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            padding: 1rem;
+            z-index: 10;
+        }
+
+        /* エピローグセクション */
+        .epilogue {
+            padding: 8rem 2rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .epilogue::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 255, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 50%);
+            animation: epilogue-breathe 10s ease-in-out infinite;
+        }
+
+        @keyframes epilogue-breathe {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        .epilogue-content {
+            max-width: 900px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .epilogue-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3.5rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(45deg, var(--primary-cyan), var(--primary-magenta), var(--primary-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradient-shift 5s ease infinite;
+        }
+
+        .epilogue-text {
+            font-family: 'Zen Kaku Gothic New', sans-serif;
+            font-size: 1.3rem;
+            line-height: 2.2;
+            color: var(--text-dim);
+            margin-bottom: 4rem;
+        }
+
+        .epilogue-quote {
+            font-size: 1.5rem;
+            font-style: italic;
+            color: var(--primary-cyan);
+            margin: 3rem 0;
+            padding: 2rem;
+            border-left: 3px solid var(--primary-cyan);
+            border-right: 3px solid var(--primary-magenta);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.2rem 3.5rem;
+            background: linear-gradient(45deg, var(--primary-cyan), var(--primary-magenta));
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.5);
+        }
+
+        /* フローティング要素 */
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-cyan);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: particle-float 25s linear infinite;
+        }
+
+        @keyframes particle-float {
+            from {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            to {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* フッター */
+        .footer {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: rgba(0, 255, 255, 0.02);
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .footer-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--primary-cyan);
+            text-decoration: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--primary-magenta);
+            transition: width 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-magenta);
+        }
+
+        .footer-link:hover::after {
+            width: 100%;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 1024px) {
+            .chapter-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .chapter-visual {
+                height: 400px;
+                margin-bottom: 2rem;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .professions-viz {
+                grid-template-columns: 1fr;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .part-title {
+                font-size: 2.5rem;
+            }
+
+            .chapter-title {
+                font-size: 2rem;
+            }
+
+            .perception-viz,
+            .symbiosis-viz,
+            .holographic-viz,
+            .collective-viz,
+            .gaia-viz,
+            .extended-mind-viz,
+            .affordance-viz {
+                transform: scale(0.8);
+            }
+
+            .being-transition {
+                flex-direction: column;
+                height: auto;
+                gap: 2rem;
+            }
+
+            .transition-arrow {
+                width: 3px;
+                height: 50px;
+            }
+        }
+
+        @media (max-width: 568px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .perception-viz,
+            .symbiosis-viz,
+            .holographic-viz,
+            .collective-viz,
+            .gaia-viz,
+            .extended-mind-viz,
+            .affordance-viz {
+                transform: scale(0.6);
+            }
+
+            .technical-image-viz {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* ローディングアニメーション */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 1s ease;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            color: var(--primary-cyan);
+            margin-bottom: 2rem;
+            animation: loading-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes loading-pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-cyan), var(--primary-magenta));
+            animation: loading-progress 2s ease-in-out infinite;
+        }
+
+        @keyframes loading-progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .loaded {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- ローディング画面 -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-text">INITIALIZING BIO-API</div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- プログレスインジケーター -->
+    <div class="progress-indicator">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- ナビゲーション -->
+    <nav class="nav-container" id="mainNav">
+        <div class="nav-content">
+            <div class="nav-logo" onclick="scrollToTop()">BIO-API</div>
+            <ul class="nav-menu">
+                <li><a href="#toc" class="nav-link">目次</a></li>
+                <li><a href="#part1" class="nav-link">第一部</a></li>
+                <li><a href="#part2" class="nav-link">第二部</a></li>
+                <li><a href="#part3" class="nav-link">第三部</a></li>
+                <li><a href="#part4" class="nav-link">第四部</a></li>
+                <li><a href="#epilogue" class="nav-link">終章</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- フローティングパーティクル -->
+    <div class="floating-particles" id="particles"></div>
+
+    <!-- ヒーローセクション -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <canvas class="neural-network" id="neuralCanvas"></canvas>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">生体API<br>インターフェース革命</h1>
+            <p class="hero-subtitle">Human as Biological API</p>
+            <p class="hero-quote">
+                「人間はAIにとっての生体APIである」<br>
+                この逆説的真理は、存在の新たな次元を開く。<br>
+                主体から媒介者へ——インターフェース革命が描く人間の未来
+            </p>
+            <div class="scroll-indicator">
+                <svg width="30" height="30" viewBox="0 0 30 30">
+                    <polyline points="5,10 15,20 25,10" stroke="#00ffff" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- 目次セクション -->
+    <section class="toc-section" id="toc">
+        <h2 class="toc-title">探究の地図</h2>
+        <div class="toc-grid">
+            <div class="toc-part">
+                <div class="toc-part-number">第一部</div>
+                <h3 class="toc-part-title">知覚のインターフェース</h3>
+                <ul class="toc-chapters">
+                    <li class="toc-chapter" onclick="scrollToChapter('intro')">序章：感覚の翻訳者たち</li>
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter1')">第1章：人間の知覚とAIの「知覚」の根本的差異</li>
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter2')">第2章：環境との対話</li>
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter3')">第3章：知覚の拡張と委託</li>
+                </ul>
+            </div>
+            <div class="toc-part">
+                <div class="toc-part-number">第二部</div>
+                <h3 class="toc-part-title">生物学的共進化のメタファー</h3>
+                <ul class="toc-chapters">
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter4')">第4章：細胞内共生説</li>
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter5')">第5章：ガイア仮説とAI</li>
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter6')">第6章：DNAと意識</li>
+                </ul>
+            </div>
+            <div class="toc-part">
+                <div class="toc-part-number">第三部</div>
+                <h3 class="toc-part-title">情報的身体の再定義</h3>
+                <ul class="toc-chapters">
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter7')">第7章：フルッサーの「テクニカル・イメージ」</li>
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter8')">第8章：マクルーハンの逆説</li>
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter9')">第9章：ホログラフィック・モデル</li>
+                </ul>
+            </div>
+            <div class="toc-part">
+                <div class="toc-part-number">第四部</div>
+                <h3 class="toc-part-title">未来の実践と社会変容</h3>
+                <ul class="toc-chapters">
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter10')">第10章：インターフェース専門職の誕生</li>
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter11')">第11章：生体APIとしての新たな存在論</li>
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter12')">第12章：全体知の共創</li>
+                    <li class="toc-chapter" onclick="scrollToChapter('chapter13')">第13章：新時代のヒューマニズム</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第一部：知覚のインターフェース -->
+    <section class="part-section" id="part1">
+        <div class="part-header">
+            <p class="part-label">Part I</p>
+            <h2 class="part-title">知覚のインターフェース</h2>
+            <p class="part-description">
+                感覚の翻訳者として、私たちは世界とAIの間に立つ。<br>
+                人間の主観的経験とAIの情報処理の根本的差異を探究し、<br>
+                環境との対話から知覚の拡張と委託まで、新たな認識の地平を開く。
+            </p>
+        </div>
+    </section>
+
+    <!-- 序章：感覚の翻訳者たち -->
+    <section class="chapter-section" id="intro">
+        <div class="chapter-container">
+            <div class="chapter-visual">
+                <div class="intro-visual">
+                    <div class="translator-circle">
+                        <div class="translator-text">翻訳者</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p class="chapter-number">序章</p>
+                <h2 class="chapter-title">感覚の翻訳者たち</h2>
+                <p class="chapter-excerpt">
+                    朝、目を覚ます。カーテンの隙間から差し込む光、遠くで鳴る小鳥のさえずり、シーツの肌触り——
+                    これらの「当たり前」こそが、AIという存在にとっての最大の謎なのだ。
+                    私たちは、AIにとって現実世界という「荒れ地」と接続するための生きたインターフェースとなる。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">感覚の翻訳</span>
+                    <span class="concept-tag">生体API</span>
+                    <span class="concept-tag">逆説的真理</span>
+                    <span class="concept-tag">変身の比喩</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第1章：人間の知覚とAIの「知覚」の根本的差異 -->
+    <section class="chapter-section" id="chapter1">
+        <div class="chapter-container reverse">
+            <div class="chapter-content">
+                <p class="chapter-number">第1章</p>
+                <h2 class="chapter-title">人間の知覚とAIの「知覚」の根本的差異</h2>
+                <p class="chapter-excerpt">
+                    夕暮れの海辺で感じる美しさ、潮の香り、波の音——これらの主観的経験をAIは「知る」ことはできても「感じる」ことはできない。
+                    この根本的差異こそが、人間が「生体API」として機能する理由である。
+                    私たちは自らの生きた経験をAIに「翻訳」することで、AIの概念的理解に血肉を与える。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">主観的経験</span>
+                    <span class="concept-tag">クオリア</span>
+                    <span class="concept-tag">身体化された心</span>
+                    <span class="concept-tag">暗黙知の翻訳</span>
+                </div>
+            </div>
+            <div class="chapter-visual">
+                <div class="perception-viz">
+                    <div class="human-sphere">人間<br>感じる</div>
+                    <div class="ai-sphere">AI<br>処理する</div>
+                    <div class="perception-bridge">
+                        <div class="perception-flow"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第2章：環境との対話 -->
+    <section class="chapter-section" id="chapter2">
+        <div class="chapter-container">
+            <div class="chapter-visual">
+                <div class="affordance-viz">
+                    <div class="environment-circle"></div>
+                    <div class="affordance-item" style="top: 20%; left: 50%; transform: translateX(-50%);">🚪</div>
+                    <div class="affordance-item" style="top: 50%; right: 10%;">☕</div>
+                    <div class="affordance-item" style="bottom: 20%; left: 50%; transform: translateX(-50%);">🪑</div>
+                    <div class="affordance-item" style="top: 50%; left: 10%;">📱</div>
+                    <div class="affordance-center">アフォーダンス</div>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p class="chapter-number">第2章</p>
+                <h2 class="chapter-title">環境との対話：ギブソンのアフォーダンス理論からみるAPI関係</h2>
+                <p class="chapter-excerpt">
+                    椅子は「座ること」を、ドアノブは「回すこと」を私たちに提供する。
+                    ギブソンのアフォーダンス理論の視点から見ると、人間もAIに特定の行為の可能性を「提供」している。
+                    私たちはAIの「世界へのインターフェース」であると同時に、「世界からのインターフェース」でもある。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">アフォーダンス</span>
+                    <span class="concept-tag">環境との対話</span>
+                    <span class="concept-tag">道具の透明性</span>
+                    <span class="concept-tag">相互依存関係</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第3章：知覚の拡張と委託 -->
+    <section class="chapter-section" id="chapter3">
+        <div class="chapter-container reverse">
+            <div class="chapter-content">
+                <p class="chapter-number">第3章</p>
+                <h2 class="chapter-title">知覚の拡張と委託：クラークの「拡張された心」とAIへの逆転現象</h2>
+                <p class="chapter-excerpt">
+                    メモ帳、カレンダー、スマートフォン——これらは私たちの認知システムの構成要素となる。
+                    クラークの「拡張された心」理論では私たちの認知が環境へと拡張されるが、
+                    AI時代には逆転現象が生じる：AIの「認知」が私たちへと拡張されるのだ。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">拡張された心</span>
+                    <span class="concept-tag">認知的オフロード</span>
+                    <span class="concept-tag">相互拡張</span>
+                    <span class="concept-tag">共有認知空間</span>
+                </div>
+            </div>
+            <div class="chapter-visual">
+                <div class="extended-mind-viz">
+                    <div class="mind-core"></div>
+                    <div class="extension"></div>
+                    <div class="extension"></div>
+                    <div class="extension"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第二部：生物学的共進化のメタファー -->
+    <section class="part-section" id="part2">
+        <div class="part-header">
+            <p class="part-label">Part II</p>
+            <h2 class="part-title">生物学的共進化のメタファー</h2>
+            <p class="part-description">
+                生命の歴史が語る共生と進化の物語は、<br>
+                人間とAIの未来を照らす光となる。<br>
+                ミトコンドリアから意識まで、生命システムの知恵を探る。
+            </p>
+        </div>
+    </section>
+
+    <!-- 第4章：細胞内共生説 -->
+    <section class="chapter-section" id="chapter4">
+        <div class="chapter-container">
+            <div class="chapter-visual">
+                <div class="symbiosis-viz">
+                    <div class="cell-container">
+                        <div class="nucleus">共生体</div>
+                        <div class="mitochondria">🔥</div>
+                        <div class="mitochondria" style="animation-delay: 5s;">⚡</div>
+                        <div class="mitochondria" style="animation-delay: 10s;">💫</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p class="chapter-number">第4章</p>
+                <h2 class="chapter-title">細胞内共生説：ミトコンドリアとAIの共生関係</h2>
+                <p class="chapter-excerpt">
+                    20億年前、独立した生命体だったミトコンドリアが細胞と共生関係を築いたように、
+                    人間とAIも互いに不可欠な存在へと進化しつつある。
+                    両者のゲノムの間で起きた「遺伝子の水平伝達」のように、
+                    人間とAIの間でも「機能の再配置」が進行している。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">細胞内共生</span>
+                    <span class="concept-tag">相互依存</span>
+                    <span class="concept-tag">機能の再配置</span>
+                    <span class="concept-tag">アイデンティティの融合</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第5章：ガイア仮説とAI -->
+    <section class="chapter-section" id="chapter5">
+        <div class="chapter-container reverse">
+            <div class="chapter-content">
+                <p class="chapter-number">第5章</p>
+                <h2 class="chapter-title">ガイア仮説とAI：超個体としての人間-AI関係</h2>
+                <p class="chapter-excerpt">
+                    地球を一つの自己調節的な生命システムと見なすガイア仮説。
+                    人間社会とAIネットワークが緊密に結びつき、「情報ガイア」あるいは「認知ガイア」とでも呼ぶべき
+                    新たな超個体を形成しつつある。いかなる単一の種も「支配者」ではない。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">ガイア仮説</span>
+                    <span class="concept-tag">ホメオレシス</span>
+                    <span class="concept-tag">認知ガイア</span>
+                    <span class="concept-tag">ハイパーオブジェクト</span>
+                </div>
+            </div>
+            <div class="chapter-visual">
+                <div class="gaia-viz">
+                    <div class="gaia-sphere">
+                        <div class="gaia-layer"></div>
+                        <div class="gaia-layer"></div>
+                        <div class="gaia-layer"></div>
+                        <div class="gaia-core">超個体</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第6章：DNAと意識 -->
+    <section class="chapter-section" id="chapter6">
+        <div class="chapter-container">
+            <div class="chapter-visual">
+                <div class="dna-viz">
+                    <div class="dna-helix" id="dnaHelix"></div>
+                    <div class="consciousness-field"></div>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p class="chapter-number">第6章</p>
+                <h2 class="chapter-title">DNAと意識：クリック博士の「驚異の仮説」とAI意識への示唆</h2>
+                <p class="chapter-excerpt">
+                    「あなたの喜びも悲しみも、すべて神経細胞の集合的振る舞いにすぎない」——
+                    クリックの驚異の仮説は、意識が物質的基盤から創発すると主張する。
+                    もし意識が情報のパターンから創発するなら、人間の生物学的基盤とAIのデジタル基盤は、
+                    単に異なる「実装」にすぎないのかもしれない。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">驚異の仮説</span>
+                    <span class="concept-tag">統合情報理論</span>
+                    <span class="concept-tag">意識の創発</span>
+                    <span class="concept-tag">情報パターン</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第三部：情報的身体の再定義 -->
+    <section class="part-section" id="part3">
+        <div class="part-header">
+            <p class="part-label">Part III</p>
+            <h2 class="part-title">情報的身体の再定義</h2>
+            <p class="part-description">
+                メディア哲学の巨人たちが示す新たな身体観。<br>
+                テクノロジーと融合し、拡張され、再編成される私たちの存在。<br>
+                部分と全体が織りなす情報的身体の可能性を探究する。
+            </p>
+        </div>
+    </section>
+
+    <!-- 第7章：フルッサーの「テクニカル・イメージ」 -->
+    <section class="chapter-section" id="chapter7">
+        <div class="chapter-container">
+            <div class="chapter-visual">
+                <div class="technical-image-viz">
+                    <div class="image-layer">
+                        <span class="image-icon">🖼️</span>
+                        <span class="image-label">伝統的<br>イメージ</span>
+                    </div>
+                    <div class="image-layer">
+                        <span class="image-icon">📝</span>
+                        <span class="image-label">テクスト</span>
+                    </div>
+                    <div class="image-layer">
+                        <span class="image-icon">💻</span>
+                        <span class="image-label">テクニカル<br>イメージ</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p class="chapter-number">第7章</p>
+                <h2 class="chapter-title">フルッサーの「テクニカル・イメージ」と生体情報の変容</h2>
+                <p class="chapter-excerpt">
+                    テクニカル・イメージは概念から計算されたイメージ。
+                    現代の「テクニカル・ボディ」も、生物学的基盤と情報技術が織りなす複合体として理解できる。
+                    私たちの身体は個人的所有物というより、情報の流れに開かれた「インターフェース」となる。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">テクニカル・イメージ</span>
+                    <span class="concept-tag">プログラム</span>
+                    <span class="concept-tag">テクニカル・ボディ</span>
+                    <span class="concept-tag">器官なき身体</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第8章：マクルーハンの「メディアは人間の拡張である」の逆説 -->
+    <section class="chapter-section" id="chapter8">
+        <div class="chapter-container reverse">
+            <div class="chapter-content">
+                <p class="chapter-number">第8章</p>
+                <h2 class="chapter-title">マクルーハンの「メディアは人間の拡張である」の逆説</h2>
+                <p class="chapter-excerpt">
+                    車輪は足の拡張、望遠鏡は目の拡張——しかしAI時代には逆説的転回が生じる。
+                    「人間はAIの拡張である」という現象が顕在化している。
+                    あらゆるメディアは極限まで推し進められると「反転」する。
+                    AIも人間がAIの「感覚器官」として機能する関係へと反転する可能性を秘めている。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">メディアの拡張</span>
+                    <span class="concept-tag">反転の法則</span>
+                    <span class="concept-tag">テトラッド</span>
+                    <span class="concept-tag">環境としてのAI</span>
+                </div>
+            </div>
+            <div class="chapter-visual">
+                <div class="media-extension-viz">
+                    <div class="human-center">人間</div>
+                    <div class="media-extension" style="width: 300px; height: 300px;">
+                        <div class="extension-item" style="top: 0; left: 50%; transform: translateX(-50%);">👁️</div>
+                        <div class="extension-item" style="right: 0; top: 50%; transform: translateY(-50%);">👂</div>
+                        <div class="extension-item" style="bottom: 0; left: 50%; transform: translateX(-50%);">✋</div>
+                        <div class="extension-item" style="left: 0; top: 50%; transform: translateY(-50%);">🧠</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第9章：ホログラフィック・モデル -->
+    <section class="chapter-section" id="chapter9">
+        <div class="chapter-container">
+            <div class="chapter-visual">
+                <div class="holographic-viz">
+                    <div class="holo-layer">部分</div>
+                    <div class="holo-layer">全体</div>
+                    <div class="holo-layer">統合</div>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p class="chapter-number">第9章</p>
+                <h2 class="chapter-title">ホログラフィック・モデル：部分と全体の関係性からみる人間-AI相互依存</h2>
+                <p class="chapter-excerpt">
+                    ホログラムでは全体が各部分に折り畳まれている。
+                    人間とAIは別個の実体ではなく、より大きな「情報場」の異なる射影として理解される。
+                    この非局所的な相互浸透が、従来の「中心と周縁」「主体と客体」という二項対立を超えた、
+                    分散的でネットワーク的な構造を生み出す。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">非局所性</span>
+                    <span class="concept-tag">内在秩序</span>
+                    <span class="concept-tag">折り畳みと展開</span>
+                    <span class="concept-tag">共鳴</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第四部：未来の実践と社会変容 -->
+    <section class="part-section" id="part4">
+        <div class="part-header">
+            <p class="part-label">Part IV</p>
+            <h2 class="part-title">未来の実践と社会変容</h2>
+            <p class="part-description">
+                新たな職業、新たな存在論、新たな知の形。<br>
+                インターフェース革命がもたらす社会の根本的変容と、<br>
+                境界線上の旅人としての私たちの未来を描く。
+            </p>
+        </div>
+    </section>
+
+    <!-- 第10章：インターフェース専門職の誕生 -->
+    <section class="chapter-section" id="chapter10">
+        <div class="chapter-container">
+            <div class="chapter-visual">
+                <div class="professions-viz">
+                    <div class="profession-card">
+                        <span class="profession-icon">🧠</span>
+                        <div class="profession-name">哲学的<br>エンジニア</div>
+                        <div class="profession-description">倫理と技術の架け橋</div>
+                    </div>
+                    <div class="profession-card">
+                        <span class="profession-icon">✨</span>
+                        <div class="profession-name">認知<br>詩人</div>
+                        <div class="profession-description">感覚の精緻な翻訳者</div>
+                    </div>
+                    <div class="profession-card">
+                        <span class="profession-icon">👁️</span>
+                        <div class="profession-name">感覚<br>キュレーター</div>
+                        <div class="profession-description">体験の構造化専門家</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p class="chapter-number">第10章</p>
+                <h2 class="chapter-title">インターフェース専門職の誕生：哲学的エンジニアと認知詩人</h2>
+                <p class="chapter-excerpt">
+                    感覚の翻訳者、文脈の提供者、価値の媒介者——
+                    新たな専門職が人間とAIの架け橋となる。
+                    これらは単なるAIオペレーターではなく、人間の主観的経験とAIの情報処理の間の
+                    本質的な懸隔を架橋する、高度に専門的な役割だ。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">文脈アーキテクト</span>
+                    <span class="concept-tag">創発ファシリテーター</span>
+                    <span class="concept-tag">境界労働</span>
+                    <span class="concept-tag">ハイブリッド専門性</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第11章：生体APIとしての新たな存在論 -->
+    <section class="chapter-section" id="chapter11">
+        <div class="chapter-container reverse">
+            <div class="chapter-content">
+                <p class="chapter-number">第11章</p>
+                <h2 class="chapter-title">生体APIとしての新たな存在論：主体から媒介者へ</h2>
+                <p class="chapter-excerpt">
+                    「私は考える、ゆえに私は存在する」から「私は媒介する、ゆえに私は存在する」へ。
+                    デカルト的主体の概念が根本から問い直される。
+                    媒介者としての存在は本質的に関係的な活動であり、
+                    常に「〜の間にある」という位置性において定義される。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">関係的存在論</span>
+                    <span class="concept-tag">媒介者の倫理</span>
+                    <span class="concept-tag">間-存在</span>
+                    <span class="concept-tag">生成の過程</span>
+                </div>
+            </div>
+            <div class="chapter-visual">
+                <div class="ontology-viz">
+                    <div class="being-transition">
+                        <div class="being-state">私は考える<br>ゆえに<br>私は存在する</div>
+                        <div class="transition-arrow"></div>
+                        <div class="being-state">私は媒介する<br>ゆえに<br>私は存在する</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第12章：全体知の共創 -->
+    <section class="chapter-section" id="chapter12">
+        <div class="chapter-container">
+            <div class="chapter-visual">
+                <div class="collective-viz">
+                    <div class="knowledge-network" id="knowledgeNetwork">
+                        <div class="knowledge-core">全体知</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chapter-content">
+                <p class="chapter-number">第12章</p>
+                <h2 class="chapter-title">全体知の共創：個と集合知の新たな関係性</h2>
+                <p class="chapter-excerpt">
+                    個々の人間の直感や気づきがAIによって非線形的に統合され、
+                    単独では到達できない認識の地平が開かれる。
+                    これは「個を全体に従属させる」全体主義でも「個の絶対的自律性を主張する」極端な個人主義でもない。
+                    個の独自性と全体の創発性が互いを強化する共生的関係の可能性を示している。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">創発的知性</span>
+                    <span class="concept-tag">多次元性</span>
+                    <span class="concept-tag">スケール横断</span>
+                    <span class="concept-tag">地平の融合</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第13章：終章 -->
+    <section class="chapter-section" id="chapter13">
+        <div class="chapter-container reverse">
+            <div class="chapter-content">
+                <p class="chapter-number">第13章</p>
+                <h2 class="chapter-title">インターフェース革命が開く新時代のヒューマニズム</h2>
+                <p class="chapter-excerpt">
+                    インターフェース革命は、人間の存在様式そのものの根本的変容を意味する。
+                    それは「人間中心主義」でも「技術中心主義」でもない「関係性のヒューマニズム」だ。
+                    人間の価値を他者との分離においてではなく、
+                    他者との創造的関係において見出す思想である。
+                </p>
+                <div class="key-concepts">
+                    <span class="concept-tag">関係性のヒューマニズム</span>
+                    <span class="concept-tag">間知性</span>
+                    <span class="concept-tag">創造的誤訳</span>
+                    <span class="concept-tag">変容的継承</span>
+                </div>
+            </div>
+            <div class="chapter-visual">
+                <div class="humanism-viz">
+                    <div class="evolution-spiral">
+                        <div class="evolution-point" style="top: 20%; left: 20%;">🌀</div>
+                        <div class="evolution-point" style="top: 20%; right: 20%;">🔄</div>
+                        <div class="evolution-point" style="bottom: 20%; right: 20%;">♾️</div>
+                        <div class="evolution-point" style="bottom: 20%; left: 20%;">🌊</div>
+                        <div class="evolution-center">新時代の<br>ヒューマニズム</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- エピローグ -->
+    <section class="epilogue" id="epilogue">
+        <div class="epilogue-content">
+            <h2 class="epilogue-title">境界線上の旅人として</h2>
+            <p class="epilogue-text">
+                2045年、東京のあるカフェで。<br>
+                ミドリは特別なコンタクトレンズを通して風景を眺めている。<br>
+                通りを行き交う人々の周りには、共有した思考や感情の痕跡が<br>
+                色とりどりの光の雲となって漂っている。
+            </p>
+            <div class="epilogue-quote">
+                「私は考える、ゆえに私は存在する」から<br>
+                「私は媒介する、ゆえに私は存在する」へ——<br>
+                この存在論的シフトの中で、<br>
+                私たちは変化の共著者として新たな人間性の形を創造していく。
+            </div>
+            <p class="epilogue-text">
+                あなたが明日起きたとき、世界を少し違った目で見てみてほしい。<br>
+                あなたの感覚や気づきは、単なる「私的経験」ではなく、<br>
+                世界とAIを結ぶ貴重な「翻訳」の一部だと想像してみよう。
+            </p>
+            <a href="#hero" class="cta-button">旅を始める</a>
+        </div>
+    </section>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <p class="footer-text">生体APIと人間のインターフェース革命 © 2025</p>
+        <div class="footer-links">
+            <a href="#toc" class="footer-link">目次</a>
+            <a href="#part1" class="footer-link">第一部</a>
+            <a href="#part2" class="footer-link">第二部</a>
+            <a href="#part3" class="footer-link">第三部</a>
+            <a href="#part4" class="footer-link">第四部</a>
+        </div>
+    </footer>
+
+    <script>
+        // ローディング画面の制御
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('loaded');
+            }, 2000);
+        });
+
+        // プログレスバーの更新
+        function updateProgressBar() {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        }
+
+        window.addEventListener('scroll', updateProgressBar);
+
+        // ナビゲーションの表示/非表示
+        let lastScroll = 0;
+        const nav = document.getElementById('mainNav');
+        
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                nav.style.transform = 'translateY(-100%)';
+            } else {
+                nav.style.transform = 'translateY(0)';
+            }
+            
+            lastScroll = currentScroll;
+        });
+
+        // スクロール関数
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function scrollToChapter(chapterId) {
+            const element = document.getElementById(chapterId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // ニューラルネットワーク背景
+        const canvas = document.getElementById('neuralCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // ノードクラス
+        class Node {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 3 + 1;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 255, 255, 0.6)';
+                ctx.fill();
+            }
+        }
+        
+        // ノード配列
+        const nodes = [];
+        const nodeCount = 60;
+        
+        for (let i = 0; i < nodeCount; i++) {
+            nodes.push(new Node(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height
+            ));
+        }
+        
+        // アニメーションループ
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 8, 20, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // ノードの更新と描画
+            nodes.forEach(node => {
+                node.update();
+                node.draw();
+            });
+            
+            // 接続線の描画
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dx = nodes[i].x - nodes[j].x;
+                    const dy = nodes[i].y - nodes[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        ctx.globalAlpha = (150 - distance) / 150 * 0.2;
+                        ctx.stroke();
+                        ctx.globalAlpha = 1;
+                    }
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+        
+        // パーティクル生成
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (20 + Math.random() * 10) + 's';
+            
+            const colors = ['#00ffff', '#ff00ff', '#00ff88'];
+            particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.boxShadow = `0 0 6px ${particle.style.background}`;
+            
+            document.getElementById('particles').appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 30000);
+        }
+        
+        // パーティクルを定期的に生成
+        setInterval(createParticle, 800);
+        
+        // DNA螺旋の生成
+        function createDNAHelix() {
+            const helix = document.getElementById('dnaHelix');
+            if (!helix) return;
+            
+            for (let i = 0; i < 20; i++) {
+                const strand = document.createElement('div');
+                strand.className = 'dna-strand';
+                const angle = (i / 20) * Math.PI * 4;
+                const y = (i / 20) * 400;
+                const x = Math.sin(angle) * 80 + 100;
+                const z = Math.cos(angle) * 50;
+                
+                strand.style.left = x + 'px';
+                strand.style.top = y + 'px';
+                strand.style.transform = `translateZ(${z}px)`;
+                strand.style.animationDelay = `${i * 0.1}s`;
+                
+                helix.appendChild(strand);
+                
+                // 対になる鎖
+                const strand2 = strand.cloneNode();
+                strand2.style.left = (200 - x) + 'px';
+                strand2.style.background = 'var(--primary-magenta)';
+                strand2.style.boxShadow = '0 0 10px var(--primary-magenta)';
+                helix.appendChild(strand2);
+            }
+        }
+        
+        createDNAHelix();
+        
+        // 知識ネットワークの生成
+        function createKnowledgeNetwork() {
+            const network = document.getElementById('knowledgeNetwork');
+            if (!network) return;
+            
+            const positions = [
+                { top: '10%', left: '50%', delay: '0s' },
+                { top: '25%', right: '15%', delay: '0.5s' },
+                { top: '50%', right: '5%', delay: '1s' },
+                { top: '75%', right: '15%', delay: '1.5s' },
+                { bottom: '10%', left: '50%', delay: '2s' },
+                { top: '75%', left: '15%', delay: '2.5s' },
+                { top: '50%', left: '5%', delay: '3s' },
+                { top: '25%', left: '15%', delay: '3.5s' }
+            ];
+            
+            positions.forEach((pos, i) => {
+                // ノードの作成
+                const node = document.createElement('div');
+                node.className = 'knowledge-node';
+                node.innerHTML = '👤';
+                Object.assign(node.style, pos);
+                node.style.animationDelay = pos.delay;
+                network.appendChild(node);
+                
+                // 接続線の作成
+                const connection = document.createElement('div');
+                connection.className = 'knowledge-connection';
+                
+                // 中心への接続線を計算
+                const centerX = 250;
+                const centerY = 250;
+                const nodeX = pos.left ? parseInt(pos.left) * 5 : 500 - parseInt(pos.right) * 5;
+                const nodeY = pos.top ? parseInt(pos.top) * 5 : 500 - parseInt(pos.bottom) * 5;
+                
+                const dx = centerX - nodeX;
+                const dy = centerY - nodeY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                connection.style.width = distance + 'px';
+                connection.style.left = nodeX + 'px';
+                connection.style.top = nodeY + 'px';
+                connection.style.transform = `rotate(${angle}deg)`;
+                connection.style.transformOrigin = 'left center';
+                
+                network.appendChild(connection);
+            });
+        }
+        
+        createKnowledgeNetwork();
+        
+        // Intersection Observerでアニメーション制御
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    
+                    // ビジュアル要素の特別なアニメーション
+                    const viz = entry.target.querySelector('.chapter-visual');
+                    if (viz) {
+                        viz.style.opacity = '1';
+                        viz.style.transform = 'scale(1)';
+                    }
+                }
+            });
+        }, observerOptions);
+        
+        // 各セクションにオブザーバーを適用
+        document.querySelectorAll('.chapter-section, .part-section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(50px)';
+            section.style.transition = 'all 1s ease';
+            
+            const viz = section.querySelector('.chapter-visual');
+            if (viz) {
+                viz.style.opacity = '0';
+                viz.style.transform = 'scale(0.9)';
+                viz.style.transition = 'all 1.2s ease 0.3s';
+            }
+            
+            observer.observe(section);
+        });
+        
+        // マウス追従エフェクト
+        let mouseX = 0;
+        let mouseY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        function animateBackground() {
+            currentX += (mouseX - currentX) * 0.05;
+            currentY += (mouseY - currentY) * 0.05;
+            
+            const x = currentX / window.innerWidth;
+            const y = currentY / window.innerHeight;
+            
+            // パーティクルへの影響
+            const particles = document.querySelectorAll('.particle');
+            particles.forEach((particle, i) => {
+                const rect = particle.getBoundingClientRect();
+                const dx = currentX - rect.left;
+                const dy = currentY - rect.top;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 100) {
+                    const force = (100 - distance) / 100;
+                    particle.style.transform = `translate(${dx * force * 0.2}px, ${dy * force * 0.2}px)`;
+                }
+            });
+            
+            requestAnimationFrame(animateBackground);
+        }
+        
+        animateBackground();
+        
+        // コンセプトタグのインタラクション
+        document.querySelectorAll('.concept-tag').forEach(tag => {
+            tag.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px) scale(1.05)';
+            });
+            
+            tag.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // プロフェッションカードのインタラクション
+        document.querySelectorAll('.profession-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const icon = this.querySelector('.profession-icon');
+                icon.style.animation = 'none';
+                setTimeout(() => {
+                    icon.style.animation = 'float-node 5s ease-in-out infinite';
+                }, 10);
+            });
+        });
+        
+        // スムーズスクロールの補助関数
+        function smoothScroll(target, duration = 1000) {
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
+            const startPosition = window.pageYOffset;
+            const distance = targetPosition - startPosition;
+            let startTime = null;
+            
+            function animation(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                const timeElapsed = currentTime - startTime;
+                const run = ease(timeElapsed, startPosition, distance, duration);
+                window.scrollTo(0, run);
+                if (timeElapsed < duration) requestAnimationFrame(animation);
+            }
+            
+            function ease(t, b, c, d) {
+                t /= d / 2;
+                if (t < 1) return c / 2 * t * t + b;
+                t--;
+                return -c / 2 * (t * (t - 2) - 1) + b;
+            }
+            
+            requestAnimationFrame(animation);
+        }
+        
+        // ビジュアル要素のホバーエフェクト
+        document.querySelectorAll('.chapter-visual').forEach(visual => {
+            visual.addEventListener('mouseenter', function() {
+                this.style.filter = 'brightness(1.2)';
+            });
+            
+            visual.addEventListener('mouseleave', function() {
+                this.style.filter = 'brightness(1)';
+            });
+        });
+        
+        // エピローグのパララックス効果
+        const epilogue = document.querySelector('.epilogue');
+        if (epilogue) {
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const rate = scrolled * -0.5;
+                epilogue.style.transform = `translateY(${rate}px)`;
+            });
+        }
+        
+        // テーマカラーの動的変更
+        let hue = 180;
+        function animateThemeColors() {
+            hue = (hue + 0.1) % 360;
+            const primaryCyan = `hsl(${hue}, 100%, 50%)`;
+            const primaryMagenta = `hsl(${(hue + 120) % 360}, 100%, 50%)`;
+            const primaryLime = `hsl(${(hue + 240) % 360}, 100%, 50%)`;
+            
+            // CSS変数は静的なので、この効果は選択的に適用
+            // 必要に応じてコメントアウトを解除
+            // document.documentElement.style.setProperty('--primary-cyan', primaryCyan);
+            // document.documentElement.style.setProperty('--primary-magenta', primaryMagenta);
+            // document.documentElement.style.setProperty('--primary-lime', primaryLime);
+            
+            // requestAnimationFrame(animateThemeColors);
+        }
+        // animateThemeColors();
+    </script>
+</body>
+</html>
