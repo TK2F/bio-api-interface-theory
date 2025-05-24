@@ -91,10 +91,6 @@ For more details, please read the article 'Bio-API: The Interface Revolution' on
 ## 📄 License
 
 This work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/yourusername/bio-api-interface/issues).
 ---
 
 <div align="center">
